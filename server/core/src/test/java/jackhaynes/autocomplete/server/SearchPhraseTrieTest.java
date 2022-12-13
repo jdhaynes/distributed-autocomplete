@@ -76,12 +76,13 @@ class SearchPhraseTrieTest {
         CachedTopTrie trie = new CachedTopTrie(3);
         trie.insertTerm("search", 0);
 
-        assertTrue(trie.containsPrefix("search"));
-        assertTrue(trie.containsPrefix("searc"));
-        assertTrue(trie.containsPrefix("sear"));
-        assertTrue(trie.containsPrefix("sea"));
-        assertTrue(trie.containsPrefix("se"));
-        assertTrue(trie.containsPrefix("s"));
+        assertAll(
+                () -> assertTrue(trie.containsPrefix("searc")),
+                () -> assertTrue(trie.containsPrefix("sear")),
+                () -> assertTrue(trie.containsPrefix("sea")),
+                () -> assertTrue(trie.containsPrefix("se")),
+                () -> assertTrue(trie.containsPrefix("s"))
+        );
     }
 
     @Test
@@ -100,7 +101,7 @@ class SearchPhraseTrieTest {
         trie.insertTerm("maps", 15);
         trie.insertTerm("mapmaker", 1);
 
-        List<String> results = trie.getTopTermsForPrefix("ma");
+        List<String> results = trie.getTopSuggestionsForPrefix("ma");
         assertAll(
                 () -> assertTrue(results.contains("mapped")),
                 () -> assertTrue(results.contains("mapping")),

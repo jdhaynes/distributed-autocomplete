@@ -3,6 +3,7 @@ package jackhaynes.autocomplete.server;
 import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ public class CachedTopTrieNode implements Serializable {
         this.parent = parent;
         this.termLiteral = null;
         this.children = new HashMap<String, CachedTopTrieNode>();
+        this.topSuggestions = new LinkedList<>();
     }
 
     public String getTermLiteral() {
@@ -49,6 +51,10 @@ public class CachedTopTrieNode implements Serializable {
         }
     }
 
+    public void addTopSuggestion(CachedTopTrieNode suggestionTerminalNode) {
+        this.topSuggestions.add(suggestionTerminalNode);
+    }
+
     public CachedTopTrieNode findChild(String value) {
         return this.children.getOrDefault(value, null);
     }
@@ -63,4 +69,16 @@ public class CachedTopTrieNode implements Serializable {
     }
 
     public boolean isEndOfTerm() { return this.endsTerm; }
+
+    public int topSuggestionsSize() {
+        return this.topSuggestions.size();
+    }
+
+    public CachedTopTrieNode getParent() {
+        return this.parent;
+    }
+
+    public List<CachedTopTrieNode> getTopSuggestionNodes() {
+        return this.topSuggestions;
+    }
 }

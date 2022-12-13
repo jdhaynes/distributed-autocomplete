@@ -1,5 +1,6 @@
 package jackhaynes.autocomplete.server;
 
+import javax.print.DocFlavor;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,16 +8,16 @@ import java.util.List;
 public class CachedTopTrie implements Serializable {
     private CachedTopTrieNode root;
     private int size;
-    private final int topTermsLimit;
+    private final int topSuggestionsLimit;
 
     /***
      * Instantiates an empty trie without any search terms.
-     * @param topTermsLimit The maximum number of top search terms to cache for each prefix.
+     * @param topSuggestionsLimit The maximum number of top search terms to cache for each prefix.
      */
-    public CachedTopTrie(int topTermsLimit) {
+    public CachedTopTrie(int topSuggestionsLimit) {
         this.size = 0;
         this.root = new CachedTopTrieNode(null, null);
-        this.topTermsLimit = topTermsLimit;
+        this.topSuggestionsLimit = topSuggestionsLimit;
     }
 
     /**
@@ -41,7 +42,8 @@ public class CachedTopTrie implements Serializable {
      * @return True if given string exists as a prefix of any search phrase loaded in the trie.
      */
     public boolean containsPrefix(String prefix) {
-        return false;
+        CachedTopTrieNode node = findPrefixTerminalNode(prefix);
+        return node != null;
     }
 
     /***
@@ -50,21 +52,8 @@ public class CachedTopTrie implements Serializable {
      * @return True if the given search term exists in the trie.
      */
     public boolean containsTerm(String term) {
-        CachedTopTrieNode currentNode = root;
-        String termProcessed = preProcessTerm(term);
-
-        for(int i = 0; i < termProcessed.length(); i++) {
-            String letter = Character.toString(termProcessed.charAt(i));
-
-            CachedTopTrieNode matchingChild = currentNode.findChild(letter);
-            if(matchingChild == null) {
-                return false;
-            }
-
-            currentNode = matchingChild;
-        }
-
-        return currentNode.isEndOfTerm();
+        CachedTopTrieNode node = findPrefixTerminalNode(term);
+        return node != null && node.isEndOfTerm();
     }
 
     /**
@@ -72,8 +61,33 @@ public class CachedTopTrie implements Serializable {
      * @param prefix String representing the prefix to search for.
      * @return Collection of the highest ranking search terms containing the prefix.
      */
-    public List<String> getTopTermsForPrefix(String prefix) {
-        return new LinkedList<>();
+    public List<String> getTopSuggestionsForPrefix(String prefix) {
+        LinkedList<String> topSuggestions = new LinkedList<>();
+
+        CachedTopTrieNode prefixNode = findPrefixTerminalNode(prefix);
+        for(CachedTopTrieNode suggestion : prefixNode.getTopSuggestionNodes()) {
+            topSuggestions.add(suggestion.getTermLiteral());
+        }
+
+        return topSuggestions;
+    }
+
+    private CachedTopTrieNode findPrefixTerminalNode(String prefix) {
+        CachedTopTrieNode currentNode = this.root;
+        String termProcessed = preProcessTerm(prefix);
+
+        for(int i = 0; i < termProcessed.length(); i++) {
+            String letter = Character.toString(termProcessed.charAt(i));
+
+            CachedTopTrieNode matchingChild = currentNode.findChild(letter);
+            if(matchingChild == null) {
+                return null;
+            }
+
+            currentNode = matchingChild;
+        }
+
+        return currentNode;
     }
 
     /**
@@ -85,10 +99,6 @@ public class CachedTopTrie implements Serializable {
         CachedTopTrieNode currentNode = root;
         String termProcessed = preProcessTerm(term);
         boolean hasInserted = false;
-
-        // Create final node of term, so it can be added to top terms of each prefix on the way down the trie.
-        String terminalValue =  Character.toString(termProcessed.charAt(term.length() - 1));
-        CachedTopTrieNode terminalNode = new CachedTopTrieNode(terminalValue, null);
 
         for(int i = 0; i < term.length(); i++) {
             String letter = Character.toString(termProcessed.charAt(i));
@@ -111,6 +121,16 @@ public class CachedTopTrie implements Serializable {
 
         if(hasInserted) {
             size++;
+
+            // Go back up to the root and add terminal top as top suggestion to each prefix.
+            // Naive algorithm - make this more efficient in the future.
+            CachedTopTrieNode terminalNode = currentNode;
+            while(currentNode.getParent() != null) {
+                currentNode = currentNode.getParent();
+                if(currentNode.topSuggestionsSize() < this.topSuggestionsLimit) {
+                    currentNode.addTopSuggestion(terminalNode);
+                }
+            }
         }
     }
 
