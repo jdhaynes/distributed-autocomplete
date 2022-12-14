@@ -4,13 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>jackhaynes.autocomplete</groupId>
-        <artifactId>server</artifactId>
+        <groupId>org.example</groupId>
+        <artifactId>search-backend</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>jackhaynes.autocomplete.server</groupId>
+    <groupId>jackhaynes.autocomplete.search.backend</groupId>
     <artifactId>core</artifactId>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -19,18 +25,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>11</source>
-                    <target>11</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
 
 </project>

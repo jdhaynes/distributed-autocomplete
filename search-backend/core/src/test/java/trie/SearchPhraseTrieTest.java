@@ -1,5 +1,6 @@
-package jackhaynes.autocomplete.server;
+package trie;
 
+import jackhaynes.autocomplete.search.backend.trie.CachedTopTrie;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -22,25 +23,25 @@ class SearchPhraseTrieTest {
     @Test
     public void WhenInsert_ShouldNotBeEmpty() {
         CachedTopTrie trie = new CachedTopTrie(3);
-        trie.insertTerm("test", 0);
+        trie.insertTerm("test");
         assertFalse(trie.isEmpty());
     }
 
     @Test
     public void WhenInsert_ShouldReturnCorrectSize() {
         CachedTopTrie trie = new CachedTopTrie(3);
-        trie.insertTerm("test1", 0);
-        trie.insertTerm("test2", 0);
+        trie.insertTerm("test1");
+        trie.insertTerm("test2");
         assertEquals(2, trie.size());
     }
 
     @Test
     public void WhenInsertSamePhrase_ShouldReturnCorrectSize() {
         CachedTopTrie trie = new CachedTopTrie(3);
-        trie.insertTerm("test1", 0);
-        trie.insertTerm("test2", 0);
-        trie.insertTerm("test2", 0);
-        trie.insertTerm("test3", 0);
+        trie.insertTerm("test1");
+        trie.insertTerm("test2");
+        trie.insertTerm("test2");
+        trie.insertTerm("test3");
         assertEquals(3, trie.size());
     }
 
@@ -53,17 +54,17 @@ class SearchPhraseTrieTest {
     @Test
     public void WhenInsertingSinglePhrase_ShouldFindPhrase() {
         CachedTopTrie trie = new CachedTopTrie(3);
-        trie.insertTerm("test", 0);
+        trie.insertTerm("test");
         assertTrue(trie.containsTerm("test"));
     }
 
     @Test
     public void WhenInsertingMultiplePhrases_ShouldFindPhrases() {
         CachedTopTrie trie = new CachedTopTrie(3);
-        trie.insertTerm("test", 0);
-        trie.insertTerm("temper", 0);
-        trie.insertTerm("java", 0);
-        trie.insertTerm("javac", 0);
+        trie.insertTerm("test");
+        trie.insertTerm("temper");
+        trie.insertTerm("java");
+        trie.insertTerm("javac");
 
         assertTrue(trie.containsTerm("test"));
         assertTrue(trie.containsTerm("temper"));
@@ -74,7 +75,7 @@ class SearchPhraseTrieTest {
     @Test
     public void WhenInsertingPhrase_ShouldFindPhrasePrefixes() {
         CachedTopTrie trie = new CachedTopTrie(3);
-        trie.insertTerm("search", 0);
+        trie.insertTerm("search");
 
         assertAll(
                 () -> assertTrue(trie.containsPrefix("searc")),
@@ -88,7 +89,7 @@ class SearchPhraseTrieTest {
     @Test
     public void WhenInsertingPhrase_ShouldNotFindWithSuffix() {
         CachedTopTrie trie = new CachedTopTrie(3);
-        trie.insertTerm("search", 0);
+        trie.insertTerm("search");
 
         assertFalse(trie.containsTerm("searching"));
     }
@@ -96,10 +97,10 @@ class SearchPhraseTrieTest {
     @Test
     public void WhenSearchingPrefix_ShouldNotReturnBottomScored() {
         CachedTopTrie trie = new CachedTopTrie(3);
-        trie.insertTerm("mapped", 5);
-        trie.insertTerm("mapping", 8);
-        trie.insertTerm("maps", 15);
-        trie.insertTerm("mapmaker", 1);
+        trie.insertTerm("mapped");
+        trie.insertTerm("mapping");
+        trie.insertTerm("maps");
+        trie.insertTerm("mapmaker");
 
         List<String> results = trie.getTopSuggestionsForPrefix("ma");
         assertAll(

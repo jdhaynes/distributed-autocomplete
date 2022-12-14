@@ -1,5 +1,6 @@
-package jackhaynes.autocomplete.server;
+package trie;
 
+import jackhaynes.autocomplete.search.backend.trie.CachedTopTrieNode;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

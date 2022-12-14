@@ -1,4 +1,4 @@
-package jackhaynes.autocomplete.server;
+package jackhaynes.autocomplete.search.backend.trie;
 
 import java.io.Serializable;
 import java.security.InvalidParameterException;
